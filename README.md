@@ -151,6 +151,11 @@ npm install --save-dev babel-preset-es2015
 ```
 BabelでES2015を使うときに必要なやつです。
 
+```bash
+npm install --save-dev vue-loader
+```
+webpackでvue.jsを扱うようにするやつです。
+
 ```
 npm install --save-dev concurrently
 ```
@@ -172,6 +177,20 @@ npm install --save-dev webpack
 [https://github.com/webpack/webpack](https://github.com/webpack/webpack)
 
 webpackですね。
+
+```bash
+npm install --save vue
+```
+vue.jsです。HTMLでscriptタグで読み込むのではなくrequireで読み込めるようにするためですね。
+```bash
+npm install --save jquery
+```
+同じくjqueryもwebpack.ProvidePluginで設定して利用できるようにします。
+
+```bash
+npm install --save vue-router
+```
+vue-router.jsもrequireで読み込めるようにします。
 
 ## package.jsonの中のscriptsで何をしているか
 
@@ -244,4 +263,103 @@ module.exports = {
 ```
 entryにもとファイル（複数ある場合は配列で持たせる）。outputに出力される設定を記述。今回はbundle.jsっていう一般的によく使われているらしい名称のまま。  
 けっこうシンプルですね。
-依存するパッケージがいろいろあってエラーが出て知るという感じで
+依存するパッケージがいろいろあってエラーが出てインストールする感じでした。うーん。
+
+```bash
+npm install --save-dev css-loader
+```
+```bash
+npm install --save-dev vue-style-loader
+```
+このふたつのパッケージは「.vueファイル」（コンポーネント化したファイル）でCSSを記述するのでそのために必要ってことですね。
+
+```bash
+npm install --save-dev vue-html-loader
+```
+これも「.vueファイル」（コンポーネント化したファイル）でHTMLを記述するのでそのために必要ってことです。
+
+## bs-config.json
+
+```json
+{
+  "injectChanges": "true",
+  "files": ["./app/**/*.{html,htm,css,js}"],
+  "watchOptions": { "ignored": "node_modules" },
+  "server": { "baseDir": "./app" }
+}
+```
+lite-serverの設定はドキュメントルートをappの直下にしたかったのと監視対象のファイル（html、css、js）が変更されたらリロードしてinjectChangesというBrowsersyncを動すため。
+
+## サンプルのソースコード
+
+[vue.jsを使った大規模開発に必要なもの](http://qiita.com/m0a/items/34df129d6d8991ebbf86)
+
+このページを参考にHello Worldしました。
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>npm Webpack Vue.js</title>
+  </head>
+  <body>
+    <div id="app">
+      <router-view></router-view>
+    </div>
+    <script src="/scripts/bundle.js"></script>
+  </body>
+</html>
+```
+app/index.htmlです。
+
+```vue
+<style>
+  .red {
+    color: #f00;
+  }
+</style>
+
+<template>
+  <h1 class="red">{{msg}}</h1>
+</template>
+
+<script>
+  module.exports = {
+    data: function() {
+      return {
+        msg: 'Hello world!'
+      }
+    }
+  }
+</script>
+```
+src/app.vueです。styleとhtmlとscriptsがひとつになってるのでキモい人にはキモいかもですが考え方を変えればわかりやすいですね。好みの別れるところでしょうが。。。
+
+### language-vue-component
+
+[CYBAI/language-vue-component](https://github.com/CYBAI/language-vue-component)
+
+あとAtomでvueのコンポーネントをシンタックスハイライトしてくれるパッケージです。
+
+```javascript
+var Vue = require('vue');
+var VueRouter = require('vue-router');
+Vue.use(VueRouter);
+var appComponent = Vue.extend(require('../components/app.vue'));
+
+var App = Vue.extend({});
+var router = new VueRouter();
+
+router.map({
+  '/': { component: appComponent}
+})
+
+router.start(App, '#app');
+```
+routerを使ってコンポーネントapp.vueを呼び出します。
+成功すると赤い文字で「Hello world!」と表示されます。
+
+---
+vue.jsは軽量で扱いやすいMVVMフレームワークですね。  
+Riot.jsの方が新しくてここのところ注目されているらしいですがvue.jsは日本語ドキュメントが充実していて情報も豊富なので入門しやすいのが特徴ですね。
